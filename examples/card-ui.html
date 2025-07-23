@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BootTables Card UI</title>
+  <!-- Include Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container my-5">
+    <h1 class="mb-4">BootTables Card UI</h1>
+
+    <!-- Controls above the cards -->
+    <div class="row gy-2 mb-4 align-items-center">
+      <!-- Entries Dropdown -->
+      <div class="col-12 col-md-4 d-flex align-items-center justify-content-center justify-content-md-start">
+        <label for="showEntries" class="me-2">Show</label>
+        <select id="showEntries" class="form-select w-auto me-2">
+          <option value="1" selected>1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="12">12</option>
+          <option value="24">24</option>
+          <option value="48">48</option>
+        </select>
+        <span>entries</span>
+      </div>
+        
+      <!-- Sort Dropdown + Search Bar -->
+      <div class="col-12 col-md-8 d-flex align-items-center justify-content-center justify-content-md-end gap-2">
+        <label for="sortBy">Sort by</label>
+        <select id="sortBy" class="form-select w-auto">
+          <option value="id" selected>ID</option>
+          <option value="name">Name</option>
+          <option value="email">Email</option>
+        </select>
+        <!-- Search Bar -->
+        <input type="text" id="searchBox" class="form-control" style="max-width: 150px" placeholder="Search by">
+      </div>
+    </div>
+      
+    <!-- Data cards row -->
+    <div id="data-container" class="row gy-4 mb-4" data-start="0", data-end="0">
+      <!-- Example record card -->
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title">Record Title</h5>
+            <p class="card-text">Some description or details here.</p>
+          </div>
+        </div>
+      </div>
+      <!-- /example -->
+    </div>
+      
+    <!-- Bottom controls with extra mb-4 -->
+    <div class="row gy-2 mb-4 align-items-center">
+      <!-- Showing info, center on xs, left on md+ -->
+      <div id="entries-info" class="col-12 col-md-6 text-center text-md-start">
+        Showing 1 to 1 of 10 entries
+      </div>
+        
+      <!-- Pagination, center on xs, right on md+ -->
+      <div class="col-12 col-md-6 text-center text-md-end">
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center justify-content-md-end mb-0" id="pagination-container">
+            <li class="page-item disabled"><a class="page-link" href="#">Prev</a></li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap 5 JS Bundle (incl. Popper) -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+  ></script>
+
+  <!-- Include jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <script>
+    $(document).ready(function () {
+      // Mock Data
+      const mockData = [];
+      for (let i = 1; i <= 100; i++) {
+        mockData.push({
+          id: i,
+          name: `Name ${i}`,
+          email: `email${i}@example.com`,
+        });
+      }
+
+      // Pagination variables
+      let itemsPerPage = 1; // Default entries per page
+      let currentPage = 1; // Current page
+      let sortBy = "id"; // Default sort criteria
+
+      const maxVisiblePages = 5; // Maximum number of visible pages in the pagination bar
+
+      function mdSize(itemsPerPage, customSize) {
+        return customSize
+          ? customSize
+          : itemsPerPage === 1
+            ? 12
+            : itemsPerPage === 2
+              ? 6
+              : 4;
+      }
+
+      // Function to render cards
+      function renderCards(data) {
+        const dataContainer = $('#data-container');
+        dataContainer.empty(); // Clear current cards
+
+        data.forEach(item => {
+          const cardHtml = `
+            <div class="col-md-${mdSize(itemsPerPage)}">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">ID: ${item.id}</h5>
+                  <p class="card-text">Name: ${item.name}</p>
+                  <p class="card-text">Email: ${item.email}</p>
+                </div>
+              </div>
+            </div>
+          `;
+          dataContainer.append(cardHtml);
+        });
+      }
+
+      // Function to paginate the data
+      function paginateData(data, page, itemsPerPage) {
+        const startIndex = (page - 1) * itemsPerPage;
+        const endIndex = page * itemsPerPage;
+        return data.slice(startIndex, endIndex);
+      }
+
+      // Function to generate pagination bar
+      function generatePagination(totalPages) {
+        const paginationContainer = $('#pagination-container');
+        paginationContainer.empty(); // Clear existing pagination controls
+
+        // Previous button
+        const prevButton = `
+          <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+            <button class="page-link" id="prev-btn">Previous</button>
+          </li>`;
+        paginationContainer.append(prevButton);
+
+        // Determine the start and end for the visible page numbers
+        const startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+        // Update startPage if endPage hits the upper boundary
+        const adjustedStartPage = Math.max(1, endPage - maxVisiblePages + 1);
+
+        // Pages based on the calculated range
+        for (let i = adjustedStartPage; i <= endPage; i++) {
+          const pageButton = `
+            <li class="page-item ${i === currentPage ? 'active' : ''}">
+              <button class="page-link page-number" data-page="${i}">${i}</button>
+            </li>`;
+          paginationContainer.append(pageButton);
+        }
+
+        // Next button
+        const nextButton = `
+          <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+            <button class="page-link" id="next-btn">Next</button>
+          </li>`;
+        paginationContainer.append(nextButton);
+      }
+
+      // Function to update the entries information
+      function updateEntriesInfo(filteredData) {
+        const startIndex = (currentPage - 1) * itemsPerPage + 1;
+        const endIndex = Math.min(currentPage * itemsPerPage, filteredData.length);
+        $('#entries-info').text(
+          `Showing ${startIndex} to ${endIndex} of ${filteredData.length} entries`
+        );
+      }
+
+      // Sorting function
+      function sortData(data, criteria) {
+        return data.sort((a, b) => {
+          if (criteria === "id") {
+            return a.id - b.id;
+          }
+          if (criteria === "name") {
+            return a.name.localeCompare(b.name);
+          }
+          if (criteria === "email") {
+            return a.email.localeCompare(b.email);
+          }
+        });
+      }
+
+      // Function to update display
+      function updateDisplay() {
+        const searchValue = $('#searchBox').val().toLowerCase();
+        let filteredData = mockData.filter(item => {
+          return (
+            item.name.toLowerCase().includes(searchValue) ||
+            item.email.toLowerCase().includes(searchValue)
+          );
+        });
+
+        // Apply sorting
+        filteredData = sortData(filteredData, sortBy);
+
+        // Calculate total pages based on filtered data
+        const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+
+        // Limit current page to within valid bounds
+        if (currentPage > totalPages) {
+          currentPage = totalPages;
+        }
+        if (currentPage < 1) {
+          currentPage = 1;
+        }
+
+        // Paginate filtered data and render cards
+        const paginatedData = paginateData(filteredData, currentPage, itemsPerPage);
+        renderCards(paginatedData);
+
+        // Generate pagination controls
+        generatePagination(totalPages);
+
+        // Update the entries info
+        updateEntriesInfo(filteredData);
+      }
+
+      // Event listeners for pagination controls
+      $('#pagination-container').on('click', '.page-number', function () {
+        const page = parseInt($(this).data('page'));
+        currentPage = page;
+        updateDisplay();
+      });
+
+      $('#pagination-container').on('click', '#prev-btn', function () {
+        if (currentPage > 1) {
+          currentPage--;
+          updateDisplay();
+        }
+      });
+
+      $('#pagination-container').on('click', '#next-btn', function () {
+        currentPage++;
+        updateDisplay();
+      });
+
+      // Event listener for search box
+      $('#searchBox').on('input', function () {
+        currentPage = 1; // Reset to the first page on search
+        updateDisplay();
+      });
+
+      // Event listener for "Show n entries" dropdown
+      $('#showEntries').on('change', function () {
+        itemsPerPage = parseInt($(this).val());
+        currentPage = 1; // Reset to the first page
+        updateDisplay();
+      });
+
+      // Event listener for "Sort by" dropdown
+      $('#sortBy').on('change', function () {
+        sortBy = $(this).val();
+        currentPage = 1; // Reset to the first page
+        updateDisplay();
+      });
+
+      // Initial page render
+      updateDisplay();
+    });
+  </script>
+</body>
+</html>

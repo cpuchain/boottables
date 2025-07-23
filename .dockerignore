@@ -1,0 +1,9 @@
+node_modules
+.git
+
+# coverage
+coverage
+
+# vitepress
+docs/.vitepress/dist
+docs/.vitepress/cache

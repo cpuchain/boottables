@@ -1,0 +1,64 @@
+{
+    "name": "boottables",
+    "version": "1.0.3",
+    "description": "Card Grid / Tables rendering library using Bootstrap 5 & jQuery",
+    "license": "MIT",
+    "author": "CPUchain",
+    "type": "module",
+    "main": "./lib/index.cjs",
+    "module": "./lib/index.js",
+    "types": "./lib/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./lib/index.js",
+            "require": "./lib/index.cjs",
+            "default": "./lib/index.js"
+        }
+    },
+    "keywords": [
+        "datatables",
+        "tables",
+        "cards",
+        "dom",
+        "bootstrap",
+        "jquery"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/cpuchain/boottables.git"
+    },
+    "scripts": {
+        "lint": "eslint src/**/*.ts scripts/**/*.ts test/**/*.ts",
+        "build": "tsc -p tsconfig.types.json --noEmit && rollup -c",
+        "start": "tsx src/index.ts",
+        "docs:dev": "vitepress dev docs",
+        "docs:build": "vitepress build docs",
+        "docs:preview": "vitepress preview docs",
+        "test": "tsx src/index.ts",
+        "test:wip": "vitest && istanbul-badges-readme --colors=\"red:50,yellow:60\""
+    },
+    "devDependencies": {
+        "@cpuchain/eslint": "^1.0.9",
+        "@cpuchain/rollup": "^1.0.4",
+        "@fastify/cors": "^11.0.1",
+        "@types/jquery": "^3.5.32",
+        "@types/node": "^22.16.0",
+        "@vitest/coverage-v8": "^3.2.4",
+        "cross-env": "^7.0.3",
+        "datatables.net": "^2.3.1",
+        "dotenv": "^17.2.0",
+        "fastify": "^5.3.3",
+        "glob": "^11.0.3",
+        "istanbul-badges-readme": "^1.9.0",
+        "mongoose": "^8.16.4",
+        "ts-node": "^10.9.2",
+        "tsc": "^2.0.4",
+        "tsx": "^4.20.3",
+        "typescript": "^5.8.3",
+        "vitepress": "^1.6.3",
+        "vitest": "^3.2.4"
+    },
+    "resolutions": {
+        "fast-glob": ">=3.3.3"
+    }
+}

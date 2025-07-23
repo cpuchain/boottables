@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BootTables Card Example</title>
+  <!-- Include Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container my-5">
+    <h1 class="mb-4">BootTables Card Example</h1>
+
+    <div id="test"></div>
+  </div>
+
+  <!-- Bootstrap 5 JS Bundle (incl. Popper) -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+  ></script>
+
+  <!-- Include jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <script src="../lib/bootTables.umd.js"></script>
+
+  <script>
+    $(document).ready(async function () {
+      // Mock Data
+      const mockData = [];
+      for (let i = 1; i <= 100; i++) {
+        mockData.push({
+          id: i,
+          name: `Name ${i}`,
+          email: `email${i}@example.com`,
+        });
+      }
+
+      const table = new bootTables.Table({
+        columns: [
+          {
+            data: 'id',
+            text: 'ID',
+          },
+          {
+            data: 'name',
+            text: 'Name',
+          },
+          {
+            data: 'email',
+            text: 'Email',
+          },
+        ],
+
+        tableId: 'test',
+
+        selectEntries: [1, 2, 3, 4, 5, 6, 12, 24, 48],
+
+        data: mockData,
+
+        ajax: async (params) => {
+          return await (await fetch('http://localhost:3000', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }, // <-- ADD THIS LINE
+            body: JSON.stringify(params),
+          })).json();
+        }
+      })
+    });
+  </script>
+</body>
+</html>

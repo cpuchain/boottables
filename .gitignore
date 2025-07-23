@@ -1,0 +1,8 @@
+node_modules
+
+# coverage
+coverage
+
+# vitepress
+docs/.vitepress/dist
+docs/.vitepress/cache
